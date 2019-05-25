@@ -32,6 +32,25 @@ public class TestController {
 		return To_do_Bot(req);
 	}
 	
+	@RequestMapping(value = "/status", produces = MediaType.APPLICATION_XML_VALUE)
+	@ResponseBody
+	public Object status(HttpServletRequest req) {
+		log.info("接收到请求：");
+		
+		log.info("接收到请求，header：");
+		Map<String, String> header = getAllRequestHeaders(req);
+		for(String key : header.keySet()) {
+			log.info(key+"="+header.get(key));
+		}
+		
+		log.info("接收到请求，param：");
+		Map<String, String> param = getAllRequestParam(req);
+		for(String key : param.keySet()) {
+			log.info(key+"="+param.get(key));
+		}
+		return getTwiml("delivered");
+	}
+	
 	private Object NEW_APP_WHO_DIS(HttpServletRequest req) {
 		String FromCountry = req.getParameter("FromCountry");
 		//String reqbody = getRequestBody(req);
@@ -112,6 +131,23 @@ public class TestController {
 			while (temp.hasMoreElements()) {
 				String en = (String) temp.nextElement();
 				String value = request.getParameter(en);
+				res.put(en, value);
+				//如果字段的值为空，判断若值为空，则删除这个字段>
+				if (null == res.get(en) || "".equals(res.get(en))) {
+					res.remove(en);
+				}
+			}
+		}
+		return res;
+	}
+	
+	private Map<String, String> getAllRequestHeaders(final HttpServletRequest request) {
+		Map<String, String> res = new HashMap<String, String>();
+		Enumeration<String> temp = request.getHeaderNames();
+		if (null != temp) {
+			while (temp.hasMoreElements()) {
+				String en = (String) temp.nextElement();
+				String value = request.getHeader(en);
 				res.put(en, value);
 				//如果字段的值为空，判断若值为空，则删除这个字段>
 				if (null == res.get(en) || "".equals(res.get(en))) {
